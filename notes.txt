@@ -5,5 +5,18 @@
 - V3: curl -i localhost:4000/v1/healthcheck
 
 
-
+- Migration:
 // migrate -path=./migrations -database=$GREENLIGHT_DB_DSN up
+
+- Env param:
+BODY='{"name": "Olzhas Ilyassov", "email": "ol.ilyassov@gmail.com", "password": "pa55word"}'
+BODY='{"email": "ol.ilyassov@gmail.com", "password": "pa55word"}'
+
+- Reg:
+curl -d "$BODY" localhost:4000/v1/users
+
+- Activate:
+curl -X PUT -d '{"token": "E3WUGATXYEUPFR2VTBHAAAFL2I"}' localhost:4000/v1/users/activated
+
+- Auth:
+curl -i -d "$BODY" localhost:4000/v1/tokens/authentication
