@@ -27,3 +27,5 @@ curl -i localhost:4000/v1/movies/1
 curl -i -H "Authorization: Bearer 2O4YHHWDHVVWWDNKN2UZR722BU" localhost:4000/v1/movies/1
 
 curl -X DELETE -H "Authorization: Bearer OPFXEPOYZWMGNWXWKMYIMEGATU" localhost:4000/v1/movies/1
+
+go run ./cmd/api -cors-trusted-origins="https://www.example.com https://staging.example.com"

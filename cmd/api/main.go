@@ -8,6 +8,7 @@ import (
 	"github.com/ol-ilyassov/spa_final/internal/jsonlog"
 	"github.com/ol-ilyassov/spa_final/internal/mailer"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -38,6 +39,9 @@ type config struct {
 		username string
 		password string
 		sender   string
+	}
+	cors struct {
+		trustedOrigins []string
 	}
 }
 
@@ -75,6 +79,11 @@ func main() {
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "8db0d4c74dccb8", "SMTP username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "8376f58c61e62a", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "RIG <no-reply@rig.mail.net>", "SMTP sender")
+
+	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
+		cfg.cors.trustedOrigins = strings.Fields(val)
+		return nil
+	})
 
 	flag.Parse()
 
