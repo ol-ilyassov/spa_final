@@ -7,29 +7,24 @@ import (
 )
 
 func (app *application) routes() http.Handler {
-	// Instance of httprouter router.
 	router := httprouter.New()
 
-	// Convert notFoundResponse() helper to a http.Handler
 	router.NotFound = http.HandlerFunc(app.notFoundResponse)
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
-	// URL patterns and Handler Functions
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 
-	router.HandlerFunc(http.MethodGet, "/v1/movies", app.requirePermission("movies:read", app.listMoviesHandler))
-	router.HandlerFunc(http.MethodPost, "/v1/movies", app.requirePermission("movies:write", app.createMovieHandler))
-	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", app.requirePermission("movies:read", app.showMovieHandler))
-	router.HandlerFunc(http.MethodPatch, "/v1/movies/:id", app.requirePermission("movies:write", app.updateMovieHandler))
-	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", app.requirePermission("movies:write", app.deleteMovieHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/musics", app.requirePermission("musics:read", app.listMusicsHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/musics", app.requirePermission("musics:write", app.createMusicHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/musics/:id", app.requirePermission("musics:read", app.showMusicHandler))
+	router.HandlerFunc(http.MethodPatch, "/v1/musics/:id", app.requirePermission("musics:write", app.updateMusicHandler))
+	router.HandlerFunc(http.MethodDelete, "/v1/musics/:id", app.requirePermission("musics:write", app.deleteMusicHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)
 
-	// Retrieve Memory usage as json by handler.
 	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
 
-	// If panic, then call app.serverErrorResponse() on recoverPanic()
 	return app.metrics(app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router)))))
 }
