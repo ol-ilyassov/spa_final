@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/lib/pq"
-	"github.com/ol-ilyassov/greenlight/internal/validator"
+	"github.com/ol-ilyassov/spa_final/internal/validator"
 	"time"
 )
 

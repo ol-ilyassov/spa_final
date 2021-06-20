@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
-	"github.com/ol-ilyassov/greenlight/internal/validator"
+	"github.com/ol-ilyassov/spa_final/internal/validator"
 	"io"
 	"net/http"
 	"net/url"
@@ -134,4 +134,22 @@ func (app *application) readInt(qs url.Values, key string, defaultValue int, v *
 		return defaultValue
 	}
 	return i
+}
+
+func (app *application) background(fn func()) {
+	app.wg.Add(1)
+
+	go func() {
+		defer app.wg.Done()
+
+		// Recover any panic.
+		defer func() {
+
+			if err := recover(); err != nil {
+				app.logger.PrintError(fmt.Errorf("%s", err), nil)
+			}
+		}()
+		// Execute the arbitrary parameter function.
+		fn()
+	}()
 }

@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"github.com/ol-ilyassov/greenlight/internal/data"
-	"github.com/ol-ilyassov/greenlight/internal/jsonlog"
+	"github.com/ol-ilyassov/spa_final/internal/data"
+	"github.com/ol-ilyassov/spa_final/internal/jsonlog"
+	"github.com/ol-ilyassov/spa_final/internal/mailer"
 	"os"
+	"sync"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -30,6 +32,13 @@ type config struct {
 		burst   int     // Number of maximum request in single burst
 		enabled bool    // Is RateLimiter turned On
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 // Dependencies for HTTP handlers, helpers, and middleware
@@ -37,6 +46,8 @@ type application struct {
 	config config
 	logger *jsonlog.Logger
 	models data.Models
+	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
 
 func main() {
@@ -59,6 +70,12 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", "8db0d4c74dccb8", "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", "8376f58c61e62a", "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "RIG <no-reply@rig.mail.net>", "SMTP sender")
+
 	flag.Parse()
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
@@ -76,6 +93,7 @@ func main() {
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
 	err = app.serve()

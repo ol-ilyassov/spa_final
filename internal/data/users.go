@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/ol-ilyassov/greenlight/internal/validator"
+	"github.com/ol-ilyassov/spa_final/internal/validator"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -88,11 +88,9 @@ type UserModel struct {
 }
 
 func (m UserModel) Insert(user *User) error {
-	query := `INSERT INTO users (name, email, password_hash, activated)
-              VALUES ($1, $2, $3, $4)
-              RETURNING id, created_at, version`
+	query :=
+		`INSERT INTO users (name, email, password_hash, activated) VALUES ($1, $2, $3, $4) RETURNING id, created_at, version`
 	args := []interface{}{user.Name, user.Email, user.Password.hash, user.Activated}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -109,9 +107,8 @@ func (m UserModel) Insert(user *User) error {
 }
 
 func (m UserModel) GetByEmail(email string) (*User, error) {
-	query := `SELECT id, created_at, name, email, password_hash, activated, version
-              FROM users
-              WHERE email = $1`
+	query :=
+		`SELECT id, created_at, name, email, password_hash, activated, version FROM users WHERE email = $1`
 	var user User
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -140,10 +137,9 @@ func (m UserModel) GetByEmail(email string) (*User, error) {
 // Version - race
 // Uniqueness - user_email_key
 func (m UserModel) Update(user *User) error {
-	query := `UPDATE users
-              SET name = $1, email = $2, password_hash = $3, activated = $4, version = version + 1 
-              WHERE id = $5 AND version = $6
-              RETURNING version`
+	query :=
+		`UPDATE users SET name = $1, email = $2, password_hash = $3, activated = $4, version = version + 1
+         WHERE id = $5 AND version = $6 RETURNING version`
 	args := []interface{}{
 		user.Name,
 		user.Email,

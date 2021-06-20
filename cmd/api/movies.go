@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/ol-ilyassov/greenlight/internal/data"
-	"github.com/ol-ilyassov/greenlight/internal/validator"
+	"github.com/ol-ilyassov/spa_final/internal/data"
+	"github.com/ol-ilyassov/spa_final/internal/validator"
 	"net/http"
 )
 
