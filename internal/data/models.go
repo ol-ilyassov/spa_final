@@ -5,9 +5,9 @@ import (
 	"errors"
 )
 
-// Return this error at Get() when movie doesn't exist in db.
 var (
 	ErrRecordNotFound = errors.New("record not found")
+	ErrEditConflict   = errors.New("edit conflict")
 )
 
 // Stores and wraps all models.
