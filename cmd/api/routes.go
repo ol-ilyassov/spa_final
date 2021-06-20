@@ -9,6 +9,10 @@ func (app *application) routes() *httprouter.Router {
 	// Instance of httprouter router.
 	router := httprouter.New()
 
+	// Convert notFoundResponse() helper to a http.Handler
+	router.NotFound = http.HandlerFunc(app.notFoundResponse)
+	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
+
 	// URL patterns and Handler Functions
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/movies", app.createMovieHandler)
