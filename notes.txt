@@ -1,0 +1,5 @@
+
+- Run Program:
+- V1: go run ./cmd/api
+- V2: go run ./cmd/api -port=3030 -env=production
+- V3: curl -i localhost:4000/v1/healthcheck
