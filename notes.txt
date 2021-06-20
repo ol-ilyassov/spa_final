@@ -20,3 +20,10 @@ curl -X PUT -d '{"token": "E3WUGATXYEUPFR2VTBHAAAFL2I"}' localhost:4000/v1/users
 
 - Auth:
 curl -i -d "$BODY" localhost:4000/v1/tokens/authentication
+
+
+curl -i localhost:4000/v1/movies/1
+
+curl -i -H "Authorization: Bearer 2O4YHHWDHVVWWDNKN2UZR722BU" localhost:4000/v1/movies/1
+
+curl -X DELETE -H "Authorization: Bearer OPFXEPOYZWMGNWXWKMYIMEGATU" localhost:4000/v1/movies/1

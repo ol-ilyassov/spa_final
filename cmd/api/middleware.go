@@ -126,10 +126,56 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 			}
 			return
 		}
-		// Call the contextSetUser() helper to add the user information to the request
-		// context.
+		// Add the user information to the request context.
 		r = app.contextSetUser(r, user)
-		// Call the next handler in the chain.
+
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := app.contextGetUser(r)
+		// Is User Anonymous?
+		if user.IsAnonymous() {
+			app.authenticationRequiredResponse(w, r)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// Checks that a user is both authenticated and activated.
+func (app *application) requireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
+	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := app.contextGetUser(r)
+		// Check that a user is activated.
+		if !user.Activated {
+			app.inactiveAccountResponse(w, r)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+	// Wrap with requireAuthenticatedUser().
+	return app.requireAuthenticatedUser(fn)
+}
+
+func (app *application) requirePermission(code string, next http.HandlerFunc) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		user := app.contextGetUser(r)
+		// Get the slice of permissions for the user.
+		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+		if !permissions.Include(code) {
+			app.notPermittedResponse(w, r) // 403 Forbidden response.
+			return
+		}
+		// Next handler in the chain.
+		next.ServeHTTP(w, r)
+	}
+	// Wrap with requireActivatedUser().
+	return app.requireActivatedUser(fn)
 }
