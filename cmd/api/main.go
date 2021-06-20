@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"database/sql"
+	"expvar"
 	"flag"
 	"github.com/ol-ilyassov/spa_final/internal/data"
 	"github.com/ol-ilyassov/spa_final/internal/jsonlog"
 	"github.com/ol-ilyassov/spa_final/internal/mailer"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -15,7 +17,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// Application Version Number
+// Application Version number
 const version = "1.0.0"
 
 // Configuration Settings
@@ -96,6 +98,24 @@ func main() {
 	}
 	defer db.Close()
 	logger.PrintInfo("database connection pool established", nil)
+
+	// Npw: cmdline, memstats, version.
+	expvar.NewString("version").Set(version)
+
+	// Num of Active goroutines
+	expvar.Publish("goroutines", expvar.Func(func() interface{} {
+		return runtime.NumGoroutine()
+	}))
+
+	// DB pool Statistics
+	expvar.Publish("database", expvar.Func(func() interface{} {
+		return db.Stats()
+	}))
+
+	// Current Unix timestamp
+	expvar.Publish("timestamp", expvar.Func(func() interface{} {
+		return time.Now().Unix()
+	}))
 
 	// Instance of application struct
 	app := &application{
